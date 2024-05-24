@@ -1,0 +1,34 @@
+{% extends 'catalog/base.html' %}
+{% load my_tags %}
+{% block content %}
+<div class="col-12">
+    <p><a class="btn btn-outline-primary" href="{% url 'catalog:product_create' %}" role="button">Добавить товар</a>
+    </p>
+</div>
+{% for product in object_list %}
+<div class="col-6">
+    <div class="card mb-4 box-shadow">
+        <div class="card-header">
+            <h4 class="my-0 font-weight-normal">{{product.product_name}}</h4>
+        </div>
+        <div class="card-body">
+            <h1 class="card-title pricing-card-title">{{product.price}}</h1>
+            <img src="{{ product.image | media_url }}" alt="" style="max-width: 75%;">
+            <ul class="list-unstyled mt-3 mb-4 text-start m-3">
+                <li>{{product.description|truncatechars:100}}</li>
+
+            </ul>
+
+
+            <!--            <button type="button" class="btn btn-lg btn-block btn-outline-primary">Купить</button>-->
+
+            <a href="{% url 'catalog:product' product.pk %}" class="btn btn-outline-primary" role="button">Просмотреть</a>
+            <a href="{% url 'catalog:edit_product' product.pk %}" class="btn btn-outline-primary" role="button">Редактировать</a>
+            <a href="{% url 'catalog:delete_product' product.pk %}" class="btn btn-outline-primary" role="button">Удалить</a>
+        </div>
+
+    </div>
+
+</div>
+{% endfor %}
+{% endblock %}
