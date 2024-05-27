@@ -1,7 +1,7 @@
 from django.db import models
 from pytils.translit import slugify
 
-NULLABLE = {'null': True, 'blank': True}
+from config.settings import NULLABLE
 
 
 class BlogPost(models.Model):

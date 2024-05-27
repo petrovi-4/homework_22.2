@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-from catalog.models import NULLABLE
+from config.settings import NULLABLE
 
 
 class User(AbstractUser):
@@ -13,3 +13,7 @@ class User(AbstractUser):
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
+
+
+# class CustomUser(AbstractUser):
+#     verification_code = models.CharField(max_length=50, **NULLABLE)
