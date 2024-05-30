@@ -31,7 +31,7 @@ class ContactView(TemplateView):
         return self.render_to_response({'title': 'Контакты'})
 
 
-class ProductDetailView(DetailView):
+class ProductDetailView(LoginRequiredMixin, DetailView):
     model = Product
     template_name = 'catalog/product_detail.html'
 
