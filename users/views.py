@@ -1,11 +1,12 @@
 import random
+import secrets
 
 from django.contrib.auth.views import LoginView as BaseLoginView
 from django.contrib.auth.views import LogoutView as BaseLogoutView
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
-
+from django.utils.crypto import get_random_string
 from django.views.generic import CreateView, TemplateView, UpdateView, FormView
 
 from config import settings
@@ -28,12 +29,14 @@ class RegisterView(CreateView):
     template_name = 'users/register.html'
 
     def form_valid(self, form):
-        user = form.save()
-        email = user.email
-        pk = user.pk
+        user = form.save(commit=False)
         user.is_active = False
+        user.token = secrets.token_urlsafe(16)
+        print('Token:', user.token)
         user.save()
-        url = f'http://127.0.0.1:8000/users/verification/{pk}'
+        email = user.email
+        token = user.token
+        url = f'http://127.0.0.1:8000/users/verification/{token}'
         send_mail(
             subject='Подтверждение регистрации',
             message=f'Для подтверждения регистрации перейдите по ссылке {url}',
@@ -51,10 +54,14 @@ class VerificationView(TemplateView):
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        user = User.objects.get(pk=self.kwargs.get('pk'))
-        if user:
+        token = self.kwargs.get('token')
+        try:
+            user = User.objects.get(token=token)
             user.is_active = True
             user.save()
+            context['success'] = True
+        except User.DoesNotExist:
+            context['success'] = False
         return self.render_to_response(context)
 
 

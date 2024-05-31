@@ -1,3 +1,5 @@
+import uuid
+
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
@@ -10,10 +12,7 @@ class User(AbstractUser):
     phone = models.CharField(max_length=30, verbose_name='Номер телефона', **NULLABLE)
     avatar = models.ImageField(upload_to='users/', verbose_name='Аватар', **NULLABLE)
     country = models.CharField(max_length=50, verbose_name='Страна', **NULLABLE)
+    token = models.CharField(max_length=50, unique=True, **NULLABLE)  # Добавил токен в моедль пользователя.
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
-
-
-# class CustomUser(AbstractUser):
-#     verification_code = models.CharField(max_length=50, **NULLABLE)
