@@ -1,7 +1,8 @@
+from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404
-from django.shortcuts import get_object_or_404
-from django.urls import reverse_lazy
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse_lazy, reverse
 from django.views.generic import TemplateView, DetailView, CreateView, ListView, UpdateView, DeleteView
 
 from catalog.forms import ProductForm, VersionForm
@@ -81,6 +82,14 @@ class ProductUpdateView(LoginRequiredMixin, UpdateView):
         if product.owner != self.request.user and not self.request.user.is_staff:
             raise Http404
         return product
+
+
+@permission_required('catalog.change_product')
+def toggle_published_product(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    product.is_published = not product.is_published
+    product.save()
+    return redirect(reverse('catalog:product', args=[pk]))
 
 
 class ProductDeleteView(LoginRequiredMixin, DeleteView):
