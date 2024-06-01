@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import permission_required
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
@@ -52,6 +52,14 @@ class ProductDetailView(LoginRequiredMixin, DetailView):
         return context_data
 
 
+@permission_required('catalog.change_product')
+def toggle_publish_product(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    product.is_published = not product.is_published
+    product.save()
+    return redirect(reverse('catalog:product', args=[pk]))
+
+
 class ProductCreateView(LoginRequiredMixin, CreateView):
     model = Product
     form_class = ProductForm
@@ -71,37 +79,37 @@ class ProductListView(ListView):
     }
 
 
-class ProductUpdateView(LoginRequiredMixin, UpdateView):
+class ProductUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Product
     form_class = ProductForm
     success_url = reverse_lazy('catalog:list_product')
 
-    def get_object(self, queryset=None):
-        product_pk = self.kwargs.get('pk')
-        product = get_object_or_404(Product, pk=product_pk)
-        if product.owner != self.request.user and not self.request.user.is_staff:
-            raise Http404
-        return product
+    # def get_object(self, queryset=None):
+    #     product_pk = self.kwargs.get('pk')
+    #     product = get_object_or_404(Product, pk=product_pk)
+    #     if product.owner != self.request.user and not self.request.user.is_staff:
+    #         raise Http404
+    #     return product
+
+    def test_func(self):
+        product = self.get_object()
+        return product.owner == self.request.user or self.request.user.has_perm('catalog.change_product')
 
 
-@permission_required('catalog.change_product')
-def toggle_published_product(request, pk):
-    product = get_object_or_404(Product, pk=pk)
-    product.is_published = not product.is_published
-    product.save()
-    return redirect(reverse('catalog:product', args=[pk]))
-
-
-class ProductDeleteView(LoginRequiredMixin, DeleteView):
+class ProductDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Product
     success_url = reverse_lazy('catalog:list_product')
 
-    def get_object(self, queryset=None):
-        product_pk = self.kwargs.get('pk')
-        product = get_object_or_404(Product, pk=product_pk)
-        if product.owner != self.request.user and not self.request.user.is_staff:
-            raise Http404
-        return product
+    # def get_object(self, queryset=None):
+    #     product_pk = self.kwargs.get('pk')
+    #     product = get_object_or_404(Product, pk=product_pk)
+    #     if product.owner != self.request.user and not self.request.user.is_staff:
+    #         raise Http404
+    #     return product
+
+    def test_func(self):
+        product = self.get_object()
+        return product.owner == self.request.user or self.request.user.has_perm('catalog.delete_product')
 
 
 class VersionCreateView(LoginRequiredMixin, CreateView):

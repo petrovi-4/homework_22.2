@@ -1,39 +1,42 @@
 {% extends 'catalog/base.html' %}
 {% load my_tags %}
 {% block content %}
-    <div class="col-12">
-        {% if user.is_authenticated %}
-            <p><a class="btn btn-outline-primary" href="{% url 'catalog:product_create' %}" role="button">Добавить товар</a>
-            </p>
-        {% endif %}
-    </div>
-    {% for product in object_list %}
-        <div class="col-6">
-            <div class="card mb-4 box-shadow">
-                <div class="card-header">
-                    <h4 class="my-0 font-weight-normal">{{ product.product_name }}</h4>
-                </div>
-                <div class="card-body">
-                    <h1 class="card-title pricing-card-title">{{ product.price }}</h1>
-                    <img src="{{ product.image | media_url }}" alt="" style="max-width: 75%;">
-                    <ul class="list-unstyled mt-3 mb-4 text-start m-3">
-                        <li>{{ product.description|truncatechars:100 }}</li>
-                    </ul>
-                    <a href="{% url 'catalog:product' product.pk %}" class="btn btn-outline-primary" role="button">Просмотреть</a>
-                    {% if user.is_authenticated %}
-                        {% if user == product.owner or user.has_perm('catalog.change_product') %}
-                            <a href="{% url 'catalog:edit_product' product.pk %}" class="btn btn-outline-primary" role="button">Редактировать</a>
-                            <a href="{% url 'catalog:delete_product' product.pk %}" class="btn btn-outline-primary" role="button">Удалить</a>
-                        {% endif %}
-                        {% if user.has_perm('catalog.change_product') %}
-                            <a href="{% url 'catalog:toggle_publish_product' product.pk %}" class="btn
-                            btn-outline-primary" role="button">
-                                {% if product.is_published %}Отменить публикацию{% else %}Опубликовать{% endif %}
-                            </a>
-                        {% endif %}
-                    {% endif %}
-                </div>
-            </div>
+<div class="col-12">
+    {% if user.is_authenticated %}
+        <p><a class="btn btn-outline-primary" href="{% url 'catalog:product_create' %}" role="button">Добавить товар</a></p>
+    {% endif %}
+</div>
+{% for product in object_list %}
+<div class="col-6">
+    <div class="card mb-4 box-shadow">
+        <div class="card-header">
+            <h4 class="my-0 font-weight-normal">{{ product.product_name }}</h4>
         </div>
-    {% endfor %}
+        <div class="card-body">
+            <h1 class="card-title pricing-card-title">{{ product.price }}</h1>
+            <img src="{{ product.image | media_url }}" alt="" style="max-width: 75%;">
+            <ul class="list-unstyled mt-3 mb-4 text-start m-3">
+                <li>{{ product.description|truncatechars:100 }}</li>
+                <li>Статус: {{ product.is_published|yesno:"Опубликован,Не опубликован" }}</li>
+            </ul>
+            {% if user.is_authenticated %}
+                <a href="{% url 'catalog:product' product.pk %}" class="btn btn-outline-primary" role="button">Просмотреть</a>
+                {% if user == product.owner or perms.catalog.change_product %}
+                    <a href="{% url 'catalog:edit_product' product.pk %}" class="btn btn-outline-primary" role="button">Редактировать</a>
+                {% endif %}
+                {% if user == product.owner or perms.catalog.delete_product %}
+                    <a href="{% url 'catalog:delete_product' product.pk %}" class="btn btn-outline-primary" role="button">Удалить</a>
+                {% endif %}
+                {% if perms.catalog.change_product %}
+                    <a href="{% url 'catalog:toggle_publish_product' product.pk %}" class="btn btn-outline-primary" role="button">
+                        {% if product.is_published %}Отменить публикацию{% else %}Опубликовать{% endif %}
+                    </a>
+                {% endif %}
+            {% else %}
+                <a href="{% url 'users:login' %}?next={{ request.path }}" class="btn btn-outline-primary" role="button">Посмотреть</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endfor %}
 {% endblock %}
