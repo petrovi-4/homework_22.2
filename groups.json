@@ -358,5 +358,44 @@
     "content_type": 10,
     "codename": "view_user"
   }
+},
+{
+  "model": "auth.permission",
+  "pk": 41,
+  "fields": {
+    "name": "Can edit description",
+    "content_type": 7,
+    "codename": "can_edit_description"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 42,
+  "fields": {
+    "name": "Can edit category",
+    "content_type": 7,
+    "codename": "can_edit_category"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 43,
+  "fields": {
+    "name": "Can canceled publication",
+    "content_type": 7,
+    "codename": "can_canceled_publication"
+  }
+},
+{
+  "model": "auth.group",
+  "pk": 1,
+  "fields": {
+    "name": "moderator",
+    "permissions": [
+      43,
+      42,
+      41
+    ]
+  }
 }
 ]

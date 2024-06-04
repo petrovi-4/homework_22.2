@@ -34,6 +34,11 @@ class Product(models.Model):
     class Meta:
         verbose_name = 'продукт'
         verbose_name_plural = 'продукты'
+        permissions = [
+            ('can_edit_description', 'Can edit description'),
+            ('can_edit_category', 'Can edit category'),
+            ('can_canceled_publication', 'Can canceled publication')
+        ]
 
 
 class Version(models.Model):
